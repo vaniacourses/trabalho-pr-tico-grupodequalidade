@@ -27,7 +27,6 @@ import net.originmobi.pdv.singleton.Aplicacao;
 public class CaixaService {
 
 	private String descricao;
-	private Usuario usuario;
 
 	@Autowired
 	private CaixaRepository caixas;
@@ -40,6 +39,8 @@ public class CaixaService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Long cadastro(Caixa caixa) {
+
+		Usuario usuario;
 
 		if (caixa.getTipo().equals(CaixaTipo.CAIXA) && caixaIsAberto())
 			throw new RuntimeException("Existe caixa de dias anteriores em aberto, favor verifique");
@@ -179,8 +180,7 @@ public class CaixaService {
 	// pega o caixa aberto do usuário informado
 	public Optional<Caixa> buscaCaixaUsuario(String usuario) {
 		Usuario usu = usuarios.buscaUsuario(usuario);
-		Optional<Caixa> caixaOptional = Optional.ofNullable(caixas.findByCaixaAbertoUsuario(usu.getCodigo()));
-		return caixaOptional;
+		return Optional.ofNullable(caixas.findByCaixaAbertoUsuario(usu.getCodigo()));
 	}
 
 	public List<Caixa> listaBancos() {
