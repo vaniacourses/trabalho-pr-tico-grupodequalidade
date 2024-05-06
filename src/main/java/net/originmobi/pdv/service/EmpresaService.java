@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,66 +19,61 @@ import net.originmobi.pdv.repository.EmpresaRepository;
 @Service
 public class EmpresaService {
 
-	@Autowired
-	private EmpresaRepository empresas;
+	private final EmpresaRepository empresas;
+	private final EmpresaParametrosRepository parametros;
+	private final RegimeTributarioService regimes;
+	private final CidadeService cidades;
+	private final EnderecoService enderecos;
 
-	@Autowired
-	private EmpresaParametrosRepository parametros;
-
-	@Autowired
-	private RegimeTributarioService regimes;
-
-	@Autowired
-	private CidadeService cidades;
-
-	@Autowired
-	private EnderecoService enderecos;
-
+	// Injeção via construtor para gerenciar dependências
+	public EmpresaService(EmpresaRepository empresas,
+						  EmpresaParametrosRepository parametros,
+						  RegimeTributarioService regimes,
+						  CidadeService cidades,
+						  EnderecoService enderecos) {
+		this.empresas = empresas;
+		this.parametros = parametros;
+		this.regimes = regimes;
+		this.cidades = cidades;
+		this.enderecos = enderecos;
+	}
 	public void cadastro(Empresa empresa) {
 
 		try {
 			empresas.save(empresa);
 		} catch (Exception e) {
-			System.out.println(e);
+			e.getStackTrace();
+			throw new UnsupportedOperationException(e);
 		}
 	}
 
 	public Optional<Empresa> verificaEmpresaCadastrada() {
-		Optional<Empresa> empresa = empresas.buscaEmpresaCadastrada();
 
-		if (empresa.isPresent())
-			return empresa;
-
-		Optional<Empresa> empresaOptiona = Optional.empty();
-
-		return empresaOptiona;
+		return empresas.buscaEmpresaCadastrada();
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public String merger(Long codigo, String nome, String nome_fantasia, String cnpj, String ie, int serie,
-			int ambiente, Long codRegime, Long codendereco, Long codcidade, String rua, String bairro, String numero,
-			String cep, String referencia, Double aliqCalcCredito) {
+	public String merger(Long codigo, String nome, String nomeFantasia, String cnpj, String ie, int serie,
+						 int ambiente, Long codRegime, Long codendereco, Long codcidade, String rua, String bairro, String numero,
+						 String cep, String referencia, Double aliqCalcCredito) {
 
 		if (codigo != null) {
 			try {
-				empresas.update(codigo, nome, nome_fantasia, cnpj, ie, codRegime);
+				empresas.update(codigo, nome, nomeFantasia, cnpj, ie, codRegime);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new IllegalArgumentException("Erro ao salvar dados iniciais da empresa. Chame o suporte");
 			}
 
 			try {
 				parametros.update(serie, ambiente, aliqCalcCredito);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new IllegalArgumentException ("Erro ao salvar dados da empresa, chame o suporte");
 			}
 
 			try {
 				enderecos.update(codendereco, codcidade, rua, bairro, numero, cep, referencia);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new IllegalArgumentException ("Erro ao salvar dados de localização da empresa. Chame o suporte");
 			}
 		} else {
 			EmpresaParametro parametro = new EmpresaParametro();
@@ -90,8 +84,7 @@ public class EmpresaService {
 				parametro.setpCredSN(aliqCalcCredito);
 				parametros.save(parametro);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new UnsupportedOperationException( "Erro ao salvar dados da empresa, chame o suporte"+parametro);
 			}
 
 			Optional<RegimeTributario> tributario = regimes.busca(codRegime);
@@ -104,16 +97,14 @@ public class EmpresaService {
 			try {
 				enderecos.cadastrar(endereco);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new UnsupportedOperationException ("Erro ao cadastrar endereço da empresa. Chame o suporte");
 			}
 
 			try {
-				Empresa empresa = new Empresa(nome, nome_fantasia, cnpj, ie, tributario.get(), endereco, parametro);
+				Empresa empresa = new Empresa(nome, nomeFantasia, cnpj, ie, tributario.get(), endereco, parametro);
 				empresas.save(empresa);
 			} catch (Exception e) {
-				System.out.println(e);
-				return "Erro ao salvar dados da empresa, chame o suporte";
+				throw new UnsupportedOperationException ("Erro ao salvar novos dados da empresa. Chame o suporte");
 			}
 		}
 
