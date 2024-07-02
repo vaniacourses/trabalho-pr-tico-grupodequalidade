@@ -4,6 +4,8 @@ import net.originmobi.pdv.dtos.ProdutoDTO;
 import net.originmobi.pdv.enumerado.EntradaSaida;
 import net.originmobi.pdv.enumerado.produto.ProdutoControleEstoque;
 import net.originmobi.pdv.enumerado.produto.ProdutoSubstTributaria;
+import net.originmobi.pdv.exceptions.produto.InsufficientStockException;
+import net.originmobi.pdv.exceptions.produto.ProdutoNotFoundException;
 import net.originmobi.pdv.model.Produto;
 import net.originmobi.pdv.repository.ProdutoRepository;
 import net.originmobi.pdv.service.ProdutoService;
