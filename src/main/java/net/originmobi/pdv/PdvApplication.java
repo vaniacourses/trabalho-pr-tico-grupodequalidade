@@ -20,7 +20,9 @@ public class PdvApplication extends SpringBootServletInitializer {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(PdvApplication.class, args);
+		SpringApplication application = new SpringApplication(PdvApplication.class);
+		application.setAdditionalProfiles("debug");
+		application.run(args);
 	}
 
 	@Bean
