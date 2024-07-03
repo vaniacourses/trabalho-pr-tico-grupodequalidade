@@ -24,7 +24,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class EmpressServiceTest {
+class EmpresaServiceTest {
 
     @Mock
     EmpresaRepository empresaRepository;
@@ -45,7 +45,7 @@ class EmpressServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        MockitoAnnotations.initMocks(this);
         empresaService = new EmpresaService(empresaRepository, parametrosRepository, regimeTributarioService, cidadeService, enderecoService);
     }
 
