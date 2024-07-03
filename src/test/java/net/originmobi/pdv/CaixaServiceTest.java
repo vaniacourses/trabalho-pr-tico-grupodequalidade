@@ -306,4 +306,61 @@ class CaixaServiceTest {
         assertNotNull(result);
         assertEquals(2, mockList.size());
     }
+
+    @Test
+    void testListaBancos() {
+        List<Caixa> mockList = new ArrayList<>();
+        mockList.add(new Caixa());
+        mockList.add(new Caixa());
+        when(caixas.buscaBancos(CaixaTipo.BANCO)).thenReturn(mockList);
+
+        List<Caixa> result = caixaService.listaBancos();
+
+        assertNotNull(result);
+        assertEquals(2, mockList.size());
+    }
+
+    @Test
+    void testlistaCaixasAbertosTipo() {
+        List<Caixa> mockList = new ArrayList<>();
+        mockList.add(new Caixa());
+        mockList.add(new Caixa());
+        when(caixas.buscaBancos(CaixaTipo.CAIXA)).thenReturn(mockList);
+
+        List<Caixa> result = caixaService.listaCaixasAbertosTipo(CaixaTipo.CAIXA);
+
+        assertNotNull(result);
+        assertEquals(2, mockList.size());
+    }
+
+    @Test
+    void testBusca() {
+        Caixa caixaMock = new Caixa();
+        String descriptionTest = "desc test";
+        caixaMock.setDescricao(descriptionTest);
+        when(caixas.findById(1L)).thenReturn(Optional.of(caixaMock));
+
+        Optional<Caixa> result = caixaService.busca(1L);
+
+        assertNotNull(result);
+        assertEquals(descriptionTest, result.get().getDescricao());
+    }
+
+    @Test
+    void testBuscaCaixaUsuario() {
+        Caixa caixaMock = new Caixa();
+        String descriptionTest = "desc test";
+        Usuario userMock = new Usuario();
+
+        userMock.setUser("userTest");
+        caixaMock.setDescricao(descriptionTest);
+
+        when(usuarios.buscaUsuario("teste")).thenReturn(userMock);
+        when(caixas.findByCaixaAbertoUsuario(userMock.getCodigo())).thenReturn(caixaMock);
+
+        Optional<Caixa> result = caixaService.buscaCaixaUsuario("teste");
+
+        assertNotNull(result);
+        assertEquals(descriptionTest, result.get().getDescricao());
+    }
 }
