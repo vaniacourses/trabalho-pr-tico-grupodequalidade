@@ -4,6 +4,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,13 +39,13 @@ public class EmpresaService {
 		this.cidades = cidades;
 		this.enderecos = enderecos;
 	}
-	public void cadastro(Empresa empresa) {
+	public void cadastro(Empresa empresa) throws RuntimeException {
 
 		try {
 			empresas.save(empresa);
 		} catch (Exception e) {
 			e.getStackTrace();
-			throw new UnsupportedOperationException(e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -61,19 +63,19 @@ public class EmpresaService {
 			try {
 				empresas.update(codigo, nome, nomeFantasia, cnpj, ie, codRegime);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Erro ao salvar dados iniciais da empresa. Chame o suporte");
+				throw new IllegalStateException("Erro ao salvar dados iniciais da empresa. Chame o suporte");
 			}
 
 			try {
 				parametros.update(serie, ambiente, aliqCalcCredito);
 			} catch (Exception e) {
-				throw new IllegalArgumentException ("Erro ao salvar dados da empresa, chame o suporte");
+				throw new IllegalStateException ("Erro ao salvar dados da empresa, chame o suporte");
 			}
 
 			try {
 				enderecos.update(codendereco, codcidade, rua, bairro, numero, cep, referencia);
 			} catch (Exception e) {
-				throw new IllegalArgumentException ("Erro ao salvar dados de localização da empresa. Chame o suporte");
+				throw new IllegalStateException ("Erro ao salvar dados de localização da empresa. Chame o suporte");
 			}
 		} else {
 			EmpresaParametro parametro = new EmpresaParametro();
@@ -84,7 +86,7 @@ public class EmpresaService {
 				parametro.setpCredSN(aliqCalcCredito);
 				parametros.save(parametro);
 			} catch (Exception e) {
-				throw new UnsupportedOperationException( "Erro ao salvar dados da empresa, chame o suporte"+parametro);
+				throw new DataIntegrityViolationException( "Erro ao salvar dados da empresa, chame o suporte"+parametro);
 			}
 
 			Optional<RegimeTributario> tributario = regimes.busca(codRegime);
@@ -97,14 +99,14 @@ public class EmpresaService {
 			try {
 				enderecos.cadastrar(endereco);
 			} catch (Exception e) {
-				throw new UnsupportedOperationException ("Erro ao cadastrar endereço da empresa. Chame o suporte");
+				throw new DataIntegrityViolationException ("Erro ao cadastrar endereço da empresa. Chame o suporte");
 			}
 
 			try {
 				Empresa empresa = new Empresa(nome, nomeFantasia, cnpj, ie, tributario.get(), endereco, parametro);
 				empresas.save(empresa);
 			} catch (Exception e) {
-				throw new UnsupportedOperationException ("Erro ao salvar novos dados da empresa. Chame o suporte");
+				throw new DataIntegrityViolationException ("Erro ao salvar novos dados da empresa. Chame o suporte");
 			}
 		}
 
